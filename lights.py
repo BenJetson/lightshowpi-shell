@@ -120,9 +120,9 @@ def print_item_list(items):
             i2 = ""
             item2 = ""
 
-        gap = COL_WIDTH - len(item1)
+        gap = (COL_WIDTH - len(item1)) * " "
 
-        if i < 10:
+        if i < 9:
             item1 = " " + item1
 
         print("{}. {}{}{}. {}".format(i+1, item1, gap, i2+1, item2))
