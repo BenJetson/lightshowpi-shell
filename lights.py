@@ -20,13 +20,13 @@ MODES = {
 
 
 class Song:
-    def __init__(self, path, extension=".mp3", delimiter="-"):
+    def __init__(self, path, extension=".mp3", delimiter="_"):
         self.type = "song"
 
         self.path = path
         self.path_tree = path.split("/")
 
-        self.filename = path[len(path) - 1]
+        self.filename = self.path_tree[len(self.path_tree) - 1]
 
         self.title = self.filename[:(-1 * len(extension))].replace(delimiter, " ").title()
 
@@ -48,7 +48,7 @@ class Playlist:
         self.path = path
         self.path_tree = path.split("/")
 
-        self.filename = path[len(path) - 1]
+        self.filename = self.path_tree[len(self.path_tree) - 1]
 
         self.title = self.filename[:(-1 * len(extension))].replace(delimiter, " ").title()
 
