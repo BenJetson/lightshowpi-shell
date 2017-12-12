@@ -6,7 +6,7 @@ import subprocess
 WORKING_DIR = "/home/pi/lightshowpi"
 MUSIC_DIR = WORKING_DIR + "/music"
 PLAYLIST_DIR = WORKING_DIR + "/playlists"
-LIGHTSHOWPI = WORKING_DIR + "/py/lightshowpi.py"
+LIGHTSHOWPI = WORKING_DIR + "/py/synchronized_lights.py"
 COL_WIDTH = 50
 MODES = {
     "now playing": 0,
@@ -255,9 +255,8 @@ def get_playlists():
 running = True
 now_playing = None
 mode = 0
-
-all_songs = []
-all_playlists = []
+all_songs = get_songs()
+all_playlists = get_playlists()
 
 
 while running:
