@@ -1,10 +1,10 @@
 import glob
 import subprocess
 
-WORKING_DIR = "/home/pi/pylightshow"
+WORKING_DIR = "/home/pi/lightshowpi"
 MUSIC_DIR = WORKING_DIR + "/music"
 PLAYLIST_DIR = WORKING_DIR + "/playlists"
-LIGHTSHOWPI = WORKING_DIR + "/py/pylightshow.py"
+LIGHTSHOWPI = WORKING_DIR + "/py/lightshowpi.py"
 COL_WIDTH = 50
 
 
@@ -25,7 +25,7 @@ class Song:
         self.process = subprocess.Popen(["sudo", LIGHTSHOWPI, "--file=" + self.path])
 
     def stop(self):
-        if (self.process != None):
+        if self.process is not None:
             self.process.terminate()
             self.process = None
 
@@ -54,11 +54,11 @@ class Playlist:
         self.process = subprocess.Popen(["sudo", LIGHTSHOWPI, "--playlist" + self.path])
 
     def stop(self):
-        if (self.process != None):
+        if self.process is not None:
             self.process.terminate()
             self.process = None
 
-    def append(self, song):
+    def add(self, song):
         self.songs.append(song)
         self.is_saved = False
 
@@ -66,7 +66,7 @@ class Playlist:
         self.songs.remove(song)
         self.is_saved = False
 
-    def removeByIndex(self, index):
+    def remove_by_index(self, index):
         self.songs.remove(self.songs[index])
         self.is_saved = False
 
@@ -83,13 +83,11 @@ class Playlist:
         self.songs = []
 
         with open(self.path, "r") as infile:
-            for line in infile.readLines():
+            for line in infile.readlines():
                 parts = line.split("\t")
-                self.songs.append( Song(parts[1]) )
+                self.songs.append(Song(parts[1]))
 
         self.is_saved = True
-
-
 
 
 def print_item_list(items):
@@ -105,7 +103,7 @@ def print_item_list(items):
 
         i2 = i + length
 
-        if (i2 < len(items)):
+        if i2 < len(items):
             item2 = items[i2].title
         else:
             i2 = ""
@@ -119,53 +117,37 @@ def print_item_list(items):
         print("{}. {}{}{}. {}".format(i+1, item1, gap, i2+1, item2))
 
 
-def validateNumeric(num, low, high):
-    if isinstance(num, str) and num.isNumeric():
+def validate_numeric(num, low, high):
+    if isinstance(num, str) and num.isnumeric():
         num = int(num)
         if low <= num <= high:
             return True
     return False
 
-def menu():
-    while True:
-        print("""
----LightShowPi Menu---
- 1. Play a song
- 2. Play a playlist
- 3. Stop playing
- 4. Make a playlist
- 5. Refresh file index
- 6. Exit
- """)
-        print("What to do?")
-        choice = input(">>>")
-
-        if validateNumeric(choice, 1, 6):
-            return int(choice)
-
 
 def choose(item_desc, items):
-    prevOK = True
+    prev_ok = True
 
     while True:
         print_item_list(items)
 
-        if not prevOK:
+        if not prev_ok:
             print("Previous input was invalid. Try again.")
 
         print("\nWhich {} to play?".format(item_desc))
         choice = input(">>>")
 
-        if validateNumeric(choice, 1, len(items)):
+        if validate_numeric(choice, 1, len(items)):
             return items[int(choice) - 1]
 
-        prevOK = False
+        prev_ok = False
         print("Invalid.")
 
 
 def make_playlist(songs):
 
     named = False
+    name = ""
     while not named:
         print("/nEnter a name for this playlist. (alphanumeric characters legal)")
         name = input(">>>")
@@ -178,70 +160,87 @@ def make_playlist(songs):
     new_playlist = Playlist(PLAYLIST_DIR + "/" + name + ".playlist")
 
     adding_songs = True
-    prevOK = True
+    prev_ok = True
 
     while adding_songs:
 
         print_item_list(songs)
 
-        if not prevOK:
+        if not prev_ok:
             print("ERROR: previous choice invalid.")
             print("  Either it was already on the playlist, or choice not on list.")
 
         print("/nWhich song to add? (type 'done' when finished)")
         choice = input(">>>")
 
-        if validateNumeric(choice, 1, len(songs)):
+        if validate_numeric(choice, 1, len(songs)):
             choice = int(choice)
             selected_song = songs[choice - 1]
 
             if selected_song not in new_playlist.songs:
                 new_playlist.add(selected_song)
-                prevOK = True
+                prev_ok = True
             else:
-                prevOK = False
+                prev_ok = False
         elif choice.casefold() == "done":
             adding_songs = False
         else:
-            prevOK = False
+            prev_ok = False
 
     new_playlist.save()
 
     return new_playlist
 
 
-
 def whats_playing(item):
-    if item != None and item.poll() != None:
+    if item is not None and item.poll() is not None:
         print("The {} entitled \"{}\" is playing.".format(item.type, item.title))
     else:
         print("Nothing is playing!")
 
+
 def stop(item):
-    if item != None:
+    if item is not None:
         item.stop()
 
-    return None
+
+def menu():
+    while True:
+        print("""
+---LightShowPi Menu---
+ 0. See what's playing
+ 1. Play a song
+ 2. Play a playlist
+ 3. Stop playing
+ 4. Make a playlist
+ 5. Refresh file index
+ 6. Exit
+ """)
+        print("What to do?")
+        choice = input(">>>")
+
+        if validate_numeric(choice, 1, 6):
+            return int(choice)
+
 
 def get_songs():
-     files = sorted(glob.glob(MUSIC_DIR + "/*.mp3"))
-     songs = []
+    files = sorted(glob.glob(MUSIC_DIR + "/*.mp3"))
+    songs = []
 
-     for file in files:
-         songs.append(Song(file))
+    for item in files:
+        songs.append(Song(item))
 
-     return songs
+    return songs
 
 
 def get_playlists():
     files = sorted(glob.glob(MUSIC_DIR + "/*.playlist"))
     playlists = []
 
-    for file in files:
-        playlists.append(Playlist(file))
+    for item in files:
+        playlists.append(Playlist(item))
 
     return playlists
-
 
 
 running = True
@@ -264,36 +263,33 @@ MODES = {
 
 while running:
 
-    choice = menu()
+    mode = menu()
+    print(mode)
 
-    if choice == MODES["now playing"]:
+    if mode == MODES["now playing"]:
         whats_playing(now_playing)
 
-
-    elif choice == MODES["play song"]:
-        now_playing =  choose("song", all_songs)
+    elif mode == MODES["play song"]:
+        now_playing = choose("song", all_songs)
         now_playing.play()
 
-
-    elif choice == MODES["play playlist"]:
+    elif mode == MODES["play playlist"]:
         now_playing = choose("playlist", all_playlists)
         now_playing.play()
 
-    elif choice == MODES["stop"]:
-        now_playing = stop(now_playing)
+    elif mode == MODES["stop"]:
+        stop(now_playing)
+        now_playing = None
 
-
-    elif choice == MODES["make playlist"]:
+    elif mode == MODES["make playlist"]:
         all_playlists.append(make_playlist(all_songs))
 
-
-    elif choice == MODES["reload files"]:
+    elif mode == MODES["reload files"]:
         all_songs = get_songs()
         all_playlists = get_playlists()
 
-
-    elif choice == MODES["exit"]:
-        now_playing = stop(now_playing)
+    elif mode == MODES["exit"]:
+        stop(now_playing)
         running = False
 
 print("Goodbye!")
