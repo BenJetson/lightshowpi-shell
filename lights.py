@@ -136,11 +136,10 @@ def validate_numeric(num, low, high):
     return False
 
 
-def choose(item_desc, items):
+def choose(item_desc, items, prev_playing):
     prev_ok = True
 
-    done = False
-    while not done:
+    while True:
         print_item_list(items)
 
         if not prev_ok:
@@ -150,8 +149,14 @@ def choose(item_desc, items):
         choice = input(">>>")
 
         if validate_numeric(choice, 1, len(items)):
-            return items[int(choice) - 1]
+            if prev_playing is not None:
+                prev_playing.stop()
+
+            selection = items[int(choice) - 1]
+            selection.play()
+            return selection
         elif choice == "done":
+            prev_playing.stop()
             return None
         else:
             prev_ok = False
@@ -271,20 +276,16 @@ while running:
         finished = False
 
         while not finished:
-            now_playing = choose("song", all_songs)
-            if now_playing is not None:
-                now_playing.play()
-            else:
+            now_playing = choose("song", all_songs, now_playing)
+            if now_playing is None:
                 finished = True
 
     elif mode == MODES["play playlist"]:
         finished = False
 
         while not finished:
-            now_playing = choose("playlist", all_playlists)
+            now_playing = choose("playlist", all_playlists, now_playing)
             if now_playing is not None:
-                now_playing.play()
-            else:
                 finished = True
 
     elif mode == MODES["stop"]:
