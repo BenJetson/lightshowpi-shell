@@ -199,11 +199,6 @@ def whats_playing(item):
         print("Nothing is playing!")
 
 
-def stop(item):
-    if item is not None:
-        item.stop()
-
-
 def menu():
     while True:
         print("""
@@ -278,8 +273,9 @@ while running:
         now_playing.play()
 
     elif mode == MODES["stop"]:
-        stop(now_playing)
-        now_playing = None
+        if now_playing is not None:
+            now_playing.stop()
+            now_playing = None
 
     elif mode == MODES["make playlist"]:
         all_playlists.append(make_playlist(all_songs))
@@ -289,7 +285,7 @@ while running:
         all_playlists = get_playlists()
 
     elif mode == MODES["exit"]:
-        stop(now_playing)
+        now_playing.stop()
         running = False
 
 print("Goodbye!")
