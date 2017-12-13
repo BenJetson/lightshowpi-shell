@@ -286,7 +286,8 @@ while running:
         all_playlists = get_playlists()
 
     elif mode == MODES["exit"]:
-        now_playing.stop()
+        if now_playing is not None:
+            now_playing.stop()
         running = False
 
 print("Goodbye!")
