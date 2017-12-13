@@ -139,20 +139,23 @@ def validate_numeric(num, low, high):
 def choose(item_desc, items):
     prev_ok = True
 
-    while True:
+    done = False
+    while not done:
         print_item_list(items)
 
         if not prev_ok:
             print("Previous input was invalid. Try again.")
 
-        print("\nWhich {} to play?".format(item_desc))
+        print("\nWhich {} to play? (type 'done' to return to menu)".format(item_desc))
         choice = input(">>>")
 
         if validate_numeric(choice, 1, len(items)):
             return items[int(choice) - 1]
-
-        prev_ok = False
-        print("Invalid.")
+        elif choice == "done":
+            return None
+        else:
+            prev_ok = False
+            print("Invalid.")
 
 
 def make_playlist(songs):
@@ -266,12 +269,24 @@ while running:
         whats_playing(now_playing)
 
     elif mode == MODES["play song"]:
-        now_playing = choose("song", all_songs)
-        now_playing.play()
+        finished = False
+
+        while not finished:
+            now_playing = choose("song", all_songs)
+            if now_playing is not None:
+                now_playing.play()
+            else:
+                finished = True
 
     elif mode == MODES["play playlist"]:
-        now_playing = choose("playlist", all_playlists)
-        now_playing.play()
+        finished = False
+
+        while not finished:
+            now_playing = choose("playlist", all_playlists)
+            if now_playing is not None:
+                now_playing.play()
+            else:
+                finished = True
 
     elif mode == MODES["stop"]:
         if now_playing is not None:
