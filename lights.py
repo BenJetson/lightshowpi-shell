@@ -6,6 +6,15 @@ MUSIC_DIR = WORKING_DIR + "/music"
 PLAYLIST_DIR = WORKING_DIR + "/playlists"
 LIGHTSHOWPI = WORKING_DIR + "/py/lightshowpi.py"
 COL_WIDTH = 50
+MODES = {
+    "now playing": 0,
+    "play song": 1,
+    "play playlist": 2,
+    "stop": 3,
+    "make playlist": 4,
+    "reload files": 5,
+    "exit": 6
+}
 
 
 class Song:
@@ -244,16 +253,6 @@ mode = 0
 
 all_songs = []
 all_playlists = []
-
-MODES = {
-    "now playing": 0,
-    "play song": 1,
-    "play playlist": 2,
-    "stop": 3,
-    "make playlist": 4,
-    "reload files": 5,
-    "exit": 6
-}
 
 
 while running:
